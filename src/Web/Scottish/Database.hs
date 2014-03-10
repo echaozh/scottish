@@ -5,6 +5,7 @@
 module Web.Scottish.Database where
 
 import Control.Lens
+import Control.Monad.IO.Class
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Identity
 
@@ -37,3 +38,7 @@ instance HasDatabaseConnectionPool conn (a, b, Pool conn) where
 getPool :: (MonadTrans t, HasDatabaseConnectionPool conn config)
         => t (Scottish config s s') (Pool conn)
 getPool = lift $ (^#poolLens) <$> runIdentityT getConfig
+
+createPool :: (HasDatabaseConnectionPool conn config)
+           => IO (Pool conn) -> ScottishM e config s s' ()
+createPool f = liftIO f >>= modifyConfig . set (cloneLens poolLens)

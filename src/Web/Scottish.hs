@@ -9,8 +9,8 @@ module Web.Scottish (
     Scottish, Scottish', ScottishM, ScottishActionM,
     scottish, scottishApp, scottishOpts,
     getConfig, getGlobalState, getLocalState,
-    scottishSetConfig, scottishModifyConfig,
-    scottishSetGlobalState, scottishModifyGlobalState
+    setConfig, modifyConfig,
+    setGlobalState, modifyGlobalState
     ) where
 
 import           Control.Applicative
@@ -104,17 +104,17 @@ getConfig = lift . view $ config
 getGlobalState :: (MonadTrans t) => t (Scottish c s s') s
 getGlobalState = lift . view $ globalState
 
-scottishSetConfig :: c -> ScottishM e c s s' ()
-scottishSetConfig = lift . assign config
+setConfig :: c -> ScottishM e c s s' ()
+setConfig = lift . assign config
 
-scottishModifyConfig :: (c -> c) -> ScottishM e c s s' ()
-scottishModifyConfig = lift . (config%=)
+modifyConfig :: (c -> c) -> ScottishM e c s s' ()
+modifyConfig = lift . (config%=)
 
-scottishSetGlobalState :: s -> ScottishM e c s s' ()
-scottishSetGlobalState = lift . assign globalState
+setGlobalState :: s -> ScottishM e c s s' ()
+setGlobalState = lift . assign globalState
 
-scottishModifyGlobalState :: (s -> s) -> ScottishM e c s s' ()
-scottishModifyGlobalState = lift . (globalState%=)
+modifyGlobalState :: (s -> s) -> ScottishM e c s s' ()
+modifyGlobalState = lift . (globalState%=)
 
 getLocalState :: (ScottyError e) => ScottishActionM e c s s' s'
 getLocalState = lift . view $ localState
