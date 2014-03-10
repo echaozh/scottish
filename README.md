@@ -1,4 +1,4 @@
-scottish
-========
+# Scottish
 
-fork of scotty, to reduce code duplication, hopefully
+Provides global read-only configuration and global/action-local read-write
+states to [Scotty](https://github.com/scotty-web/scotty).
