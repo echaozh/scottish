@@ -2,14 +2,14 @@
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
+{- | Database connection pool as an easy part of 'Scottish' app configuration.
+-}
 module Web.Scottish.Database where
 
 import Control.Lens
 import Control.Monad.IO.Class
 import Control.Monad.Trans.Class
-import Control.Monad.Trans.Identity
 
-import Data.Functor
 import Data.Pool (Pool)
 
 import Web.Scottish
@@ -37,8 +37,9 @@ instance HasDatabaseConnectionPool conn (a, b, Pool conn) where
 
 getPool :: (MonadTrans t, HasDatabaseConnectionPool conn config)
         => t (Scottish config s s') (Pool conn)
-getPool = lift $ (^#poolLens) <$> runIdentityT getConfig
+getPool = return . (^#poolLens) >$< getConfig
 
-createPool :: (HasDatabaseConnectionPool conn config)
-           => IO (Pool conn) -> ScottishM e config s s' ()
-createPool f = liftIO f >>= modifyConfig . set (cloneLens poolLens)
+setPool :: (HasDatabaseConnectionPool conn config)
+           => IO (Pool conn) -- ^ database connection pool creator in IO monad
+           -> ScottishM e config s s' ()
+setPool f = liftIO f >>= modifyConfig . set (cloneLens poolLens)
