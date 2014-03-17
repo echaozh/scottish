@@ -76,9 +76,6 @@ type Scottish' c s' = Scottish c () s'
 type ScottishM e c s s' = ScottyT e (Scottish c s s')
 type ScottishActionM e c s s' = ActionT e (Scottish c s s')
 
--- | 'Status' is a good candidate as an 'ScottyError' instance by itself.
--- A default handler to report the 'Status' is installed automatically when
--- one is raised.
 instance ScottyError Status where
     -- for now, Scotty only `raise`s when input is bad
     stringError = either (const badRequest400) id . (toEnum<$>) . readEither
@@ -165,6 +162,12 @@ setLocalState = lift . assign localState
 modifyLocalState:: (ScottyError e) => (s' -> s') -> ScottishActionM e c s s' ()
 modifyLocalState = lift . (localState%=)
 
+-- | 'Status' is a good candidate as an 'ScottyError' instance by itself. Call
+-- this function to install a default handler to report the 'Status' when one is
+-- raised.
+--
+-- Also, you may want to define instances of 'ScottyError' with tuples/records
+-- containing 'Status', to provide more informative error pages.
 handleRaisedStatus :: ScottishM Status c s s' () -> ScottishM Status c s s' ()
 handleRaisedStatus = ((defaultHandler $ \e -> status e)>>)
 
