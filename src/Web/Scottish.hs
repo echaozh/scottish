@@ -12,7 +12,7 @@ module Web.Scottish (
   , ScottishM, ScottishActionM, ScottishM', ScottishActionM'
     -- * App runners/converters
   , scottish, scottishApp, scottishOpts
-  , scottish', scottishApp', scottishOpts'
+  , scottish', scottishApp', scottishOpts', handleRaisedStatus
     -- * Configuratio/State accessors
     -- ** Shared by 'ScottyM' & 'ScottyActionM'
   , getConfig, getGlobalState, getLocalState, (>$<)
@@ -71,7 +71,7 @@ newtype Scottish config globalState localState a =
               MonadState (ScottishState config globalState localState))
 
 -- | 'Scottish' monad without 'globalState'
-type Scottish' c s' = StateT (ScottishState c () s') IO
+type Scottish' c s' = Scottish c () s'
 
 type ScottishM e c s s' = ScottyT e (Scottish c s s')
 type ScottishActionM e c s s' = ActionT e (Scottish c s s')
@@ -85,8 +85,8 @@ instance ScottyError Status where
                   . T.pack
     showError   = T.pack . show
 
-type ScottishM' e c s' = ScottyT Status (Scottish' c s')
-type ScottishActionM' e c s' = ActionT Status (Scottish' c s')
+type ScottishM' c s' = ScottyT Status (Scottish' c s')
+type ScottishActionM' c s' = ActionT Status (Scottish' c s')
 
 -- | Run a scottish app with warp.
 scottish :: (Default c, Default s, Default s')
